@@ -9,19 +9,16 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
 import android.os.Build
-import android.preference.PreferenceManager
 import android.text.InputType
 import android.util.AttributeSet
 import android.view.*
 import android.widget.EditText
 import android.widget.PopupWindow
 import android.widget.TextView
-import androidx.annotation.ColorRes
-import androidx.annotation.DimenRes
-import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
+import androidx.annotation.*
 import java.util.*
 import kotlin.math.abs
+
 
 /**
  * @author halohoop
@@ -41,19 +38,25 @@ class SimpleLoginEt : EditText, View.OnTouchListener {
     @DimenRes
     private var clearTipsBgRadius: Int = R.dimen.default_clear_tips_bg_radius
 
-    private val eyeOn: Drawable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        context.resources.getDrawable(R.mipmap.eye_open, null)
-    } else {
-        context.resources.getDrawable(R.mipmap.eye_open)
-    }
-    private val eyeClose: Drawable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        context.resources.getDrawable(R.mipmap.eye_close, null)
-    } else {
-        context.resources.getDrawable(R.mipmap.eye_close)
-    }
-    private var eyeDrawable = eyeClose
+    @DrawableRes
+    private var textVisibleOpenDrawableResId: Int = R.mipmap.eye_open
 
-    private var clickPair: Pair<Long, Pair<Float, Float>>? = null
+    @DrawableRes
+    private var textVisibleCloseDrawableResId: Int = R.mipmap.eye_close
+
+    private fun getDrawableCompat(@DrawableRes id: Int): Drawable {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            context.resources.getDrawable(id, null)
+        } else {
+            context.resources.getDrawable(id)
+        }
+    }
+
+    private var textVisibleDrawableResId = textVisibleOpenDrawableResId
+
+    private data class TouchTripleVo(val touchEventTime: Long, val x: Float, val y: Float)
+
+    private var touchEventTriple: TouchTripleVo? = null
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     private val clearTouchVelocityMinSlop =
         ViewConfiguration.get(context).scaledMinimumFlingVelocity
@@ -64,17 +67,18 @@ class SimpleLoginEt : EditText, View.OnTouchListener {
     private val tapTimeout = ViewConfiguration.getTapTimeout() * 2
     private var isFocusdWhenDown = false
 
-    constructor(context: Context?) : super(context) {}
-    constructor(context: Context?, attrs: AttributeSet?) : super(
-        context,
-        attrs
-    )
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
+        parseAttrs(attrs)
+    }
 
     constructor(
         context: Context?,
         attrs: AttributeSet?,
         defStyleAttr: Int
-    ) : super(context, attrs, defStyleAttr)
+    ) : super(context, attrs, defStyleAttr) {
+        parseAttrs(attrs)
+    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     constructor(
@@ -82,14 +86,61 @@ class SimpleLoginEt : EditText, View.OnTouchListener {
         attrs: AttributeSet?,
         defStyleAttr: Int,
         defStyleRes: Int
-    ) : super(context, attrs, defStyleAttr, defStyleRes)
+    ) : super(context, attrs, defStyleAttr, defStyleRes) {
+        parseAttrs(attrs)
+    }
+
+    private fun isPasswordMode(): Boolean =
+        InputType.TYPE_CLASS_TEXT == inputType and InputType.TYPE_MASK_CLASS
+                && (InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD == inputType and InputType.TYPE_MASK_VARIATION
+                || InputType.TYPE_TEXT_VARIATION_PASSWORD == inputType and InputType.TYPE_MASK_VARIATION)
+
+    override fun setCompoundDrawables(
+        left: Drawable?,
+        top: Drawable?,
+        right: Drawable?,
+        bottom: Drawable?
+    ) {
+        super.setCompoundDrawables(left, null, right, null)
+    }
+
+    private fun parseAttrs(attrs: AttributeSet?) {
+        attrs?.let {
+            context.obtainStyledAttributes(attrs, R.styleable.SimpleLoginEt).apply {
+                clearTips =
+                    getResourceId(R.styleable.SimpleLoginEt_clear_tips, R.string.default_clear_tips)
+                clearTipsBgColor = getResourceId(
+                    R.styleable.SimpleLoginEt_clear_tips_bg_color,
+                    R.color.default_clear_tips_bg_color
+                )
+                clearTipsBgRadius = getResourceId(
+                    R.styleable.SimpleLoginEt_clear_tips_bg_radius,
+                    R.dimen.default_clear_tips_bg_radius
+                )
+                textVisibleOpenDrawableResId =
+                    getResourceId(R.styleable.SimpleLoginEt_icon_end_open, R.mipmap.eye_open)
+                textVisibleCloseDrawableResId =
+                    getResourceId(R.styleable.SimpleLoginEt_icon_end_close, R.mipmap.eye_close)
+                recycle()
+            }
+        }
+        setCompoundDrawablesWithIntrinsicBounds(
+            compoundDrawables[0], null,
+            if(isPasswordMode()) getDrawableCompat(textVisibleOpenDrawableResId) else null, null)
+    }
 
     private var isLastLaunchExist: Boolean
 
     init {
-        PreferenceManager.getDefaultSharedPreferences(context).apply {
-            isLastLaunchExist = this.getLong("LAST_INSTANCE_DATE_MS", -1) > 0
-            edit().putLong("LAST_INSTANCE_DATE_MS", Date().getTime()).apply()
+        try {
+            context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
+                .apply {
+                    isLastLaunchExist = this.getLong("LAST_INSTANCE_DATE_MS", -1) > 0
+                    edit().putLong("LAST_INSTANCE_DATE_MS", Date().time).apply()
+                }
+        } catch (e: Exception) {
+            //如果有IO错误就不再显示了
+            isLastLaunchExist = true
         }
         setOnTouchListener(this@SimpleLoginEt)
     }
@@ -98,20 +149,24 @@ class SimpleLoginEt : EditText, View.OnTouchListener {
 
     interface OnEyeClickListener {
         /**
-         * @param eyeOpen 点击后眼睛是否是实心状态
+         * @param isToggleOpen 点击后开关是否是打开状态
          */
-        fun onClick(eyeOpen: Boolean)
+        fun onClick(isToggleOpen: Boolean)
     }
 
     private fun isClickTap(v0: Float, v1: Float): Boolean = touchSlop >= abs(v0 - v1)
 
-    private fun isClearMove1(v0: Float, v1: Float): Boolean = clearTouchSlop <= abs(v0 - v1)
+    private fun isClearMoveWhenUp(v0: Float, v1: Float): Boolean {
+        fun isClearMoveWhenUp0(): Boolean {
+            velocityTracker.computeCurrentVelocity(100, clearTouchVelocityMaxSlop.toFloat())
+            val result = abs(velocityTracker.xVelocity) >= clearTouchVelocityMinSlop
+            velocityTracker.clear()
+            return result
+        }
 
-    private fun isClearMove0(): Boolean {
-        velocityTracker.computeCurrentVelocity(100, clearTouchVelocityMaxSlop.toFloat())
-        val result = abs(velocityTracker.xVelocity) >= clearTouchVelocityMinSlop
-        velocityTracker.clear()
-        return result
+        fun isClearMoveWhenUp1(v0: Float, v1: Float): Boolean = clearTouchSlop <= abs(v0 - v1)
+
+        return isClearMoveWhenUp0() && isClearMoveWhenUp1(v0, v1)
     }
 
 //    override fun onFinishInflate() {
@@ -138,27 +193,31 @@ class SimpleLoginEt : EditText, View.OnTouchListener {
             var consumed = false
             when (it.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    //只有密码框[2]才会有值
-                    val drawable = compoundDrawables[2]
-                    if (drawable != null) {
-                        val width = drawable.bounds.width()
-                        if (it.x > measuredWidth - width) {
-                            clickPair = Pair(it.eventTime, Pair(it.x, it.y))
-                            consumed = true
-                            isFocusdWhenDown = isFocused
-                            clearFocus()
+                    //只有密码框可以点击右边的icon
+                    if (isPasswordMode()) {
+                        //只有密码框的[2]才能有值 0左1上2右3下
+                        compoundDrawables[2]?.apply {
+                            val width = bounds.width()
+                            if (it.x > measuredWidth - width) {
+                                touchEventTriple = TouchTripleVo(it.eventTime, it.x, it.y)
+                                consumed = true
+                                isFocusdWhenDown = isFocused
+                                clearFocus()
+                            }
                         }
                     }
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    if (tapTimeout > it.eventTime.minus(clickPair?.first ?: 0L)
-                        && isClickTap(it.x, clickPair?.second?.first ?: 0f)
-                        && isClickTap(it.y, clickPair?.second?.second ?: 0f)
+                    if (tapTimeout > it.eventTime.minus(touchEventTriple?.touchEventTime ?: 0L)
+                        && isClickTap(it.x, touchEventTriple?.x ?: 0f)
+                        && isClickTap(it.y, touchEventTriple?.y ?: 0f)
                     ) {
-                        onEyeClickListener?.onClick(updateAndGetEyeOpen())
+                        updateAndGetTextVisible().apply {
+                            onEyeClickListener?.onClick(this)
+                        }
                         consumed = true
                     }
-                    if (isClearMove0() && isClearMove1(it.x, clickPair?.second?.first ?: 0f)) {
+                    if (isClearMoveWhenUp(it.x, touchEventTriple?.x ?: 0f)) {
                         //删除所有字符
                         setText("")
                     } else {
@@ -167,6 +226,7 @@ class SimpleLoginEt : EditText, View.OnTouchListener {
                             requestFocus()
                         }
                     }
+                    touchEventTriple = null
                 }
             }
             return consumed
@@ -223,14 +283,19 @@ class SimpleLoginEt : EditText, View.OnTouchListener {
         }, 500)
     }
 
-    private fun updateAndGetEyeOpen(): Boolean {
-        if (eyeDrawable == eyeClose) {
-            eyeDrawable = eyeOn
+    private fun updateAndGetTextVisible(): Boolean {
+        if (textVisibleDrawableResId == textVisibleCloseDrawableResId) {
+            textVisibleDrawableResId = textVisibleOpenDrawableResId
         } else {
-            eyeDrawable = eyeClose
+            textVisibleDrawableResId = textVisibleCloseDrawableResId
         }
-        setCompoundDrawablesWithIntrinsicBounds(compoundDrawables[0], null, eyeDrawable, null)
-        return (eyeDrawable == eyeOn).apply {
+        setCompoundDrawablesWithIntrinsicBounds(
+            compoundDrawables[0],
+            null,
+            getDrawableCompat(textVisibleDrawableResId),
+            null
+        )
+        return (textVisibleDrawableResId == textVisibleCloseDrawableResId).apply {
             if (this == true) {
                 inputType =
                     InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
@@ -239,6 +304,11 @@ class SimpleLoginEt : EditText, View.OnTouchListener {
             }
             setSelection(text.toString().length)
         }
+    }
+
+    override fun setError(error: CharSequence?, icon: Drawable?) {
+        //禁用此功能，因为会影响设置drawable，感兴趣的同学也可以自定义自己的错误提示
+//        super.setError(error, icon)
     }
 
 }

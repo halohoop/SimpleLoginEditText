@@ -3,7 +3,6 @@
         <attr name="clear_tips" format="reference" />
         <attr name="clear_tips_bg_color" format="color" />
         <attr name="clear_tips_bg_radius" format="dimension" />
-        <attr name="icon_start" format="reference" />
         <attr name="icon_end_open" format="reference" />
         <attr name="icon_end_close" format="reference" />
     </declare-styleable>

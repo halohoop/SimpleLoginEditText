@@ -31,4 +31,7 @@ jobs:
         # Artifact name
         name: demo-simpleloginet-debug.apk
         # A file, directory or wildcard pattern that describes what to upload
-        path: ./demo-simpleloginet/build/outputs/apk/debug/demo-simpleloginet-debug.apk
+        path: ./demo-simpleloginet/build/outputs/apk/**
+    - uses: actions/download-artifact@v2
+    - name: Display structure of downloaded files
+      run: ls -R

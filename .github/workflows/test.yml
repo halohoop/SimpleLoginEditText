@@ -31,10 +31,12 @@ jobs:
 
 #"${INPUT_API_URL}/content/${INPUT_REPOSITORY_USER}/${INPUT_REPOSITORY}
 #/${INPUT_PACKAGE}/${INPUT_VERSION}/${INPUT_UPLOAD_PATH}/${FILENAME};publish=${INPUT_PUBLISH}"
+#curl -T <FILE.EXT> -uhalohoop:<API_KEY> https://api.bintray.com/content/halohoop/maven
+#/<YOUR_COOL_PACKAGE_NAME>/<VERSION_NAME>/<FILE_TARGET_PATH>
       - name: Upload aar package to Bintray
         uses: bpicode/github-action-upload-bintray@master
         with:
-          file: ./lib-simpleloginet/build/outputs/aar/lib-simpleloginet-release.aar
+          file: './lib-simpleloginet/build/outputs/aar/lib-simpleloginet-release.aar'
           api_url: 'https://api.bintray.com'
           api_user: 'halohoop'
           api_key: ${{ secrets.BINTRAY_API_KEY }} # An API key can be obtained from the user profile page.
@@ -45,7 +47,7 @@ jobs:
           version: '1.0.0.dev01'
           upload_path: 'android' # Typical for debian repository layout
           publish: 1 # 'Whether to publish the package right away, use "1" to enable'
-          calculate_metadata: true # Schedule metadata calcuation after upload
-          deb_distribution: stretch,buster,sid
-          deb_component: main
-          deb_architecture: amd64
+#          calculate_metadata: true # Schedule metadata calcuation after upload
+#          deb_distribution: stretch,buster,sid
+#          deb_component: main
+#          deb_architecture: amd64

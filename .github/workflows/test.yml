@@ -43,7 +43,7 @@ jobs:
           version: '1.0.0.dev01'
 #          upload_path: pool/main/m # Typical for debian repository layout
           publish: 1 # 'Whether to publish the package right away, use "1" to enable'
-#          calculate_metadata: true # Schedule metadata calcuation after upload
-#          deb_distribution: stretch,buster,sid
-#          deb_component: main
-#          deb_architecture: amd64
+          calculate_metadata: true # Schedule metadata calcuation after upload
+          deb_distribution: stretch,buster,sid
+          deb_component: main
+          deb_architecture: amd64

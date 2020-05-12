@@ -45,7 +45,7 @@ jobs:
           repository: 'maven'
           package: 'com.halohoop.simpleloginet'
           version: '1.0.0.dev01'
-          upload_path: 'android' # Typical for debian repository layout
+#          upload_path: 'android' # Typical for debian repository layout
           publish: 1 # 'Whether to publish the package right away, use "1" to enable'
 #          calculate_metadata: true # Schedule metadata calcuation after upload
 #          deb_distribution: stretch,buster,sid

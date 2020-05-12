@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ dev ]
 
 jobs:
   build:
@@ -29,9 +29,9 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         # Artifact name
-        name: demo-simpleloginet-debug.apk
+        name: demo-simpleloginet-artifacts
         # A file, directory or wildcard pattern that describes what to upload
         path: ./demo-simpleloginet/build/outputs/apk/**
-    - uses: actions/download-artifact@v2
-    - name: Display structure of downloaded files
-      run: ls -R
+#     - uses: actions/download-artifact@v2
+#     - name: Display structure of downloaded files
+#       run: ls -R

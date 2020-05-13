@@ -23,7 +23,8 @@ jobs:
         java-version: 1.8
 
     - name: Build
-      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar :lib-simpleloginet:javadocJar
+      run: ./gradlew :lib-simpleloginet:assembleRelease
+#      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar :lib-simpleloginet:javadocJar
 #      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar
 
     - name: Release
@@ -32,7 +33,10 @@ jobs:
       with:
         files: |
           ./lib-simpleloginet/build/outputs/aar/lib-simpleloginet-release.aar
-          ./lib-simpleloginet/build/libs/lib-simpleloginet-javadoc.jar
-          ./lib-simpleloginet/build/libs/lib-simpleloginet-sources.jar
+#          ./lib-simpleloginet/build/libs/lib-simpleloginet-javadoc.jar
+#          ./lib-simpleloginet/build/libs/lib-simpleloginet-sources.jar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: BintrayUpload
+      run: ./gradlew :lib-simpleloginet:bintrayUpload -PapiKey=${{ secrets.BINTRAY_API_KEY }}

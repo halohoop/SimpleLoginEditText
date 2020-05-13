@@ -45,12 +45,50 @@ task javadoc(type: Javadoc) {
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+    inputs.dir "src/main.java"
+}
+
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
     classifier = 'javadoc'
-    from javadoc.destinationDir
+    from "$buildDir/javadoc"
 }
 
 artifacts {
     archives javadocJar
     archives sourcesJar
 }
+
+//bintray {
+//    user = 'bintray_user'
+//    key = 'bintray_api_key'
+//    pkg {
+//        repo = 'maven'
+//        name = "${project.name}"
+//        userOrg = 'bintray_user'
+//        licenses = ['Apache-2.0']
+//        vcsUrl = 'https://github.com/halohoop/SimpleLoginEditText.git'
+//
+//        version {
+//            name = '1.0.rc02-Final'
+//            desc = 'SimpleLoginEditText 1.0.rc02 final'
+//            released  = new Date()
+//            vcsTag = '1.0.rc02'
+////            attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
+//        }
+//    }
+//}
+
+//publishing {
+//    publications {
+//        MyPublication(MavenPublication) {
+//            from components.java
+//            groupId 'com.halohoop'
+//            artifactId 'simpleloginet'
+//            version '1.0.rc02'
+//        }
+//    }
+//}

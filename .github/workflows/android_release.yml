@@ -32,6 +32,7 @@ jobs:
       with:
         files: |
           ./lib-simpleloginet/build/outputs/aar/lib-simpleloginet-release.aar
+          ./lib-simpleloginet/build/libs/lib-simpleloginet-javadoc.jar
           ./lib-simpleloginet/build/libs/lib-simpleloginet-sources.jar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

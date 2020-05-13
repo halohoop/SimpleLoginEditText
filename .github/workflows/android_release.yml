@@ -23,8 +23,8 @@ jobs:
         java-version: 1.8
 
     - name: Build
-#      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar :lib-simpleloginet:javadocJar
-      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar
+      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar :lib-simpleloginet:javadocJar
+#      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar
 
     - name: Release
       uses: softprops/action-gh-release@v1

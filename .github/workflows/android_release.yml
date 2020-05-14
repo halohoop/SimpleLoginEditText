@@ -2,7 +2,7 @@ name: Android CI # 定义workflow名称
 
 on: # workflow触发条件，以下设置多个触发条件
   push:
-    branches: [ master ] # 在master分支上发生push行为的时候开始
+#    branches: [ master ] # 在master分支上发生push行为的时候开始
     tags: # 满足以下格式的tag发布到远程仓库中的时候驾驶
       - 'v*.*'
       - 'v*.*.rc*'

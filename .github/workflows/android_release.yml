@@ -1,0 +1,42 @@
+name: Android CI # 定义workflow名称
+
+on: # workflow触发条件，以下设置多个触发条件
+  push:
+#    branches: [ master ] # 在master分支上发生push行为的时候开始
+    tags: # 满足以下格式的tag发布到远程仓库中的时候驾驶
+      - 'v*.*'
+      - 'v*.*.rc*'
+      - 'v*.*.dev*'
+#  pull_request:
+#    branches: [ master ]
+
+jobs: # 定义workflow所有相关配置
+  build:
+
+    runs-on: ubuntu-latest # 定义运行环境
+
+    steps: # 定义workflow所有需要执行的步骤
+    - uses: actions/checkout@v2
+    - name: set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+
+    - name: Build
+      run: ./gradlew :lib-simpleloginet:assembleRelease
+#      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar :lib-simpleloginet:javadocJar
+#      run: ./gradlew :lib-simpleloginet:assembleRelease :lib-simpleloginet:sourcesJar
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          ./lib-simpleloginet/build/outputs/aar/lib-simpleloginet-release.aar
+#          ./lib-simpleloginet/build/libs/lib-simpleloginet-javadoc.jar
+#          ./lib-simpleloginet/build/libs/lib-simpleloginet-sources.jar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: BintrayUpload
+      run: ./gradlew :lib-simpleloginet:bintrayUpload -PapiKey=${{ secrets.BINTRAY_API_KEY }}

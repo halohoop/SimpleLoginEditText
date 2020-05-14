@@ -1,7 +1,8 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
+//apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'
+apply from: 'https://cdn.jsdelivr.net/gh/halohoop/cdn@latest/github/gradle-mavenizer.gradle'
 
 // This is the library version used when deploying the artifact
 def version0 = "1.0.rc04"

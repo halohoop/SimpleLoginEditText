@@ -30,6 +30,7 @@ dependencies {
         3. 首次上传发布到jcenter不能够立即在jcenter的maven库中找到，还需要申请发布一次；
 3. TODOList Gists正文
     1. "使用GithubAction+Gradle插件将包发布到jcenter"
+
         ![Github Actions](https://cdn.jsdelivr.net/gh/halohoop/cdn/github/20200514011221.png)
         Github Actions [中文链接](https://help.github.com/cn/actions) [英文链接](https://help.github.com/en/actions) 相信关注Github的都不陌生。从去年（2019）11月全面发布至今，已有大量攻城狮在上面定义并且分享自己的Workflow，这里默认大家都了解过就一笔带过了。
         此项目当然也拥有自己的Actions，从构建，收集产物，发布Release，到最后publish到jcenter，都只需要通过定义一个自动流水线（Workflow(Workflow包含多个Actions)）即可完成所有工序。

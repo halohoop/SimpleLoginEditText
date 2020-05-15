@@ -78,6 +78,7 @@ dependencies {
               run: ./gradlew :lib-simpleloginet:bintrayUpload -PapiKey=${{ secrets.BINTRAY_API_KEY }}
         ```
     2. "封装清空触发条件"
+
         此功能整体框架和伪代码如下：
         1. 获取VelocityTracker实例和定义阈值；
         2. 收集每一个MotionEvent事件；
@@ -147,9 +148,10 @@ dependencies {
 
         ```
     3. "封装点击明/密文切换触发条件"
+
         此功能整体框架和伪代码如下：
         1. 定义点击的时间阈值；
-        2. 限定能够点击的范围为右边的icon做占得位置，记录DOWN事件的时间戳和X、Y坐标；
+        2. 限定能够点击的范围为右边的icon所占的位置，记录DOWN事件的时间戳和X、Y坐标；
         3. 比较DOWN/UP事件的时间戳差值判断是否是一个点击；
         4. 比较DOWN/UP事件的X、Y坐标差值判断是否是一个点击（限定能够点击的范围）；
         5. 修改明/密文状态icon的显示；
@@ -221,6 +223,7 @@ dependencies {
         虽然提供了滑动清空的功能，但是如果没有明显的提示用户也是不知道的，这里我们参考原生的提示功能自己封装一个PopupWindow提示，原生的提示功能是通过调用android.widget.TextView#setError触发的(EditText是TextView的子类)，感兴趣的娃可以去了解一哈，也是对PopupWindow的一个封装，代码比较简单，不多加注释了；
 
         主要的做两件事情：
+
             1. 展示tips提示；
             2. 在合适时机触发1；
         ```kotlin
@@ -296,7 +299,7 @@ dependencies {
             }
             ```
         3. "首次上传发布到jcenter不能够立即在jcenter的maven库中找到，还需要申请发布一次"
-            此处👇下边有一张图5：
+            图5：
             ![图5 Linked to jcenter](https://cdn.jsdelivr.net/gh/halohoop/cdn/github/20200514165322.png)
             申请发布首次之后，之后再提交新的发布版本就会自动发布到jcenter的maven库中，还不了解如何发布aar包到jcenter的朋友,可以参考本文结尾中相关阅读的文章。
 4. 请一起来完善，欢迎给我提PR

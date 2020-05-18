@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 apply from: 'https://cdn.jsdelivr.net/gh/halohoop/cdn@latest/github/gradle-mavenizer.gradle'
 
 // This is the library version used when deploying the artifact
-def version0 = "1.0.rc04"
+def version0 = "1.0.rc05"
 def versionCode0 = 1
 def siteUrl = 'https://github.com/halohoop/SimpleLoginEditText'      // Homepage URL of the library
 def group = "com.halohoop"                                          // Maven Group ID for the artifact
@@ -55,22 +55,22 @@ project.ext {
     mavLibraryDescription = description
 }
 
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-//    classifier = 'sources'
-    archiveClassifier.set("sources")
-}
+//task sourcesJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+////    classifier = 'sources'
+//    archiveClassifier.set("sources")
+//}
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-    outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
-    inputs.dir "src/main/java"
-}
+//task javadoc(type: Javadoc) {
+//    source = android.sourceSets.main.java.srcDirs
+//    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//}
+//
+//task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+//    outputFormat = 'javadoc'
+//    outputDirectory = "$buildDir/javadoc"
+//    inputs.dir "src/main/java"
+//}
 
 //task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
 //    archiveClassifier.set('javadoc')
@@ -78,16 +78,16 @@ task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 //}
 
 //task javadocJar(type: Jar, dependsOn: javadoc) {
-task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-    from "$buildDir/javadoc"
-//    classifier = 'javadoc'
-    archiveClassifier.set("javadoc")
-}
+//task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+//    from "$buildDir/javadoc"
+////    classifier = 'javadoc'
+//    archiveClassifier.set("javadoc")
+//}
 
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
+//artifacts {
+//    archives javadocJar
+//    archives sourcesJar
+//}
 
 bintray {
     user = 'halohoop'
@@ -113,23 +113,25 @@ bintray {
     //https://github.com/bintray/bintray-examples/tree/master/gradle-bintray-plugin-examples/publications-example
     publications = ['MyPublication']
 }
-
-publishing {
-    publications {
-        MyPublication(MavenPublication) {
-            artifact "${buildDir}/outputs/aar/lib-simpleloginet-release.aar"
-//            artifact "${buildDir}/libs/lib-simpleloginet-javadoc.jar"//文件的话不能够直接几个不同后缀名的一起上传
-//            artifact "${buildDir}/libs/lib-simpleloginet-sources.jar"//文件的话不能够直接几个不同后缀名的一起上传
-            artifact(sourcesJar)
-            artifact(javadocJar)
-            groupId group
-            artifactId artId
-            version version0
+project.afterEvaluate {
+    publishing {
+        publications {
+            MyPublication(MavenPublication) {
+    //            artifact "${buildDir}/outputs/aar/lib-simpleloginet-release.aar"
+    //            artifact "${buildDir}/libs/lib-simpleloginet-javadoc.jar"//文件的话不能够直接几个不同后缀名的一起上传
+    //            artifact "${buildDir}/libs/lib-simpleloginet-sources.jar"//文件的话不能够直接几个不同后缀名的一起上传
+                artifact(bundleReleaseAar)
+                artifact(androidSourcesJar)
+                artifact(androidJavadocsJar)
+                groupId group
+                artifactId artId
+                version version0
+            }
+    //        repositories {
+    //            maven {
+    //                url "$buildDir/repo"
+    //            }
+    //        }
         }
-//        repositories {
-//            maven {
-//                url "$buildDir/repo"
-//            }
-//        }
     }
 }
